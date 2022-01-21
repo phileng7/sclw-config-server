@@ -1,22 +1,23 @@
 version: 0.2
+env:
+  variables:
+    AWS_REGION: sa-east-1
+    APPLICATION_NAME: sclw-config-server
+    ECR_REPOSITORY: 104665986367.dkr.ecr.sa-east-1.amazonaws.com
+    IMAGE_TAG: 0.0.1-SNAPSHOT
+    CONTAINER_NAME: sclw-config-server-build-docker-container
 phases: 
   pre_build: 
     commands: 
     - echo Logging in to Amazon ECR.... 
     - aws --version
-    - $(aws ecr get-login --no-include-email --region sa-east-1)
-    - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-    - IMAGE_TAG=${COMMIT_HASH:=latest}
-    - APPLICATION_NAME=sclw-config-server
-    - REPOSITORY_URI=104665986367.dkr.ecr.sa-east-1.amazonaws.com/$APPLICATION_NAME
+    - $(aws ecr get-login --no-include-email --region $AWS_REGION)   
+    - REPOSITORY_URI=$ECR_REPOSITORY/$APPLICATION_NAME
   build: 
     commands: 
     - echo Build started on `date` 
     - echo Building the Docker image... 
-    - echo CODEBUILD_RESOLVED_SOURCE_VERSION = $CODEBUILD_RESOLVED_SOURCE_VERSION
-    - echo APPLICATION_NAME = $APPLICATION_NAME
-    - echo IMAGE_TAG = $IMAGE_TAG
-    - docker build -t $APPLICATION_NAME:$IMAGE_TAG .
+    - docker build -t $APPLICATION_NAME .
     - docker tag $APPLICATION_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG 
   post_build: 
     commands: 
@@ -24,7 +25,7 @@ phases:
     - echo pushing to repo
     - docker push $REPOSITORY_URI:$IMAGE_TAG
     - echo Writing image definitions file... 
-    - printf '[{"name":"SpringBootAppContainer", "imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+    - printf '[{"name":"'"$CONTAINER_NAME"'", "imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json    
 artifacts:
   files:
     - imagedefinitions.json

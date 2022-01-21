@@ -13,6 +13,9 @@ phases:
     commands: 
     - echo Build started on `date` 
     - echo Building the Docker image... 
+    - echo CODEBUILD_RESOLVED_SOURCE_VERSION = $CODEBUILD_RESOLVED_SOURCE_VERSION
+    - echo APPLICATION_NAME = $APPLICATION_NAME
+    - echo IMAGE_TAG = $IMAGE_TAG
     - docker build -t $APPLICATION_NAME:$IMAGE_TAG .
     - docker tag $APPLICATION_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG 
   post_build: 

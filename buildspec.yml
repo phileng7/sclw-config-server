@@ -5,7 +5,7 @@ env:
     APPLICATION_NAME: sclw-config-server
     ECR_REPOSITORY: 104665986367.dkr.ecr.sa-east-1.amazonaws.com
     IMAGE_TAG: 0.0.1-SNAPSHOT
-    CONTAINER_NAME: sclw-config-server-build-docker-container
+    CONTAINER_NAME: SCLW-ConfigServer-Container
 phases: 
   pre_build: 
     commands: 

@@ -1,13 +1,12 @@
-FROM openjdk:11-jdk as build
+FROM amazoncorretto:11-alpine-jdk as build
 
-RUN ls -lF /usr/lib/jvm/
 RUN apk add --update ca-certificates && rm -rf /var/cache/apk/* && \
     find /usr/share/ca-certificates/mozilla/ -name "*.crt" -exec keytool -import -trustcacerts \
-    -keystore /usr/lib/jvm/java-11-openjdk/jre/lib/security/cacerts -storepass changeit -noprompt \
+    -keystore /usr/lib/jvm/java-11-amazon-corretto/lib/security/cacerts -storepass changeit -noprompt \
     -file {} -alias {} \; && \
-    keytool -list -keystore /usr/lib/jvm/java-11-openjdk/jre/lib/security/cacerts --storepass changeit
+    keytool -list -keystore /usr/lib/jvm/java-11-amazon-corretto/lib/security/cacerts --storepass changeit
 
-ENV MAVEN_VERSION 3.5.4
+ENV MAVEN_VERSION 3.8.4
 ENV MAVEN_HOME /usr/lib/mvn
 ENV PATH $MAVEN_HOME/bin:$PATH
 RUN wget http://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz && \
@@ -22,10 +21,10 @@ COPY src src
 RUN mvn install -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
-FROM openjdk:11-jdk
+FROM amazoncorretto:11-alpine-jdk
 ARG DEPENDENCY=/workspace/app/target/dependency
 COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
 ENTRYPOINT ["java","-cp","app:app/lib/*","com.app.JavaAppApplication"]
-EXPOSE 8777
+EXPOSE 8888

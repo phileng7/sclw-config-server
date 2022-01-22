@@ -17,8 +17,6 @@ phases:
     commands: 
     - echo Build started on `date` 
     - echo Building the Docker image...
-    - docker -v
-    - docker info 
     - docker build -t $APPLICATION_NAME:$IMAGE_TAG .
     - docker tag $APPLICATION_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG 
   post_build: 
